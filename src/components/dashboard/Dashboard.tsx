@@ -233,7 +233,11 @@ const Dashboard = ({
             <BarChart2 className="h-4 w-4" />
             Mon activité
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => (window.location.href = "/stats")}
+          >
             <BarChart2 className="h-4 w-4" />
             Mes stats
           </Button>

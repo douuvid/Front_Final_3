@@ -105,7 +105,7 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
             </button>
           ))}
           <p className="text-sm text-muted-foreground mt-4">
-            🔄 Stats en temps réel • Mis à jour il y a 12 min
+            💡 Plus c'est précis, plus on trouve des perles
           </p>
         </div>
       ),
@@ -184,46 +184,61 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
       ),
     },
     {
-      title: "💰 Parlons cash ! C'est combien ton prix ?",
-      subtitle: "Définis tes attentes salariales",
+      title: "💰 Parlons salaire ! Tes attentes ?",
+      subtitle: "Aide-nous à cibler les bonnes offres",
       content: (
         <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">
-              💸 JE VEUX AU MINIMUM
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                placeholder="42 000€ par an"
-                value={salary.min || ""}
-                onChange={(e) =>
-                  setSalary({ ...salary, min: parseInt(e.target.value) || 0 })
-                }
-                className="w-full px-4 py-3 rounded-lg border border-input focus:border-primary focus:ring-1 focus:ring-primary"
-              />
-              <span className="absolute right-3 top-3">💶</span>
-            </div>
-          </div>
+          <div className="bg-accent/30 rounded-lg p-4 space-y-4">
+            <h3 className="font-medium text-center">
+              💼 Quelle est ta fourchette salariale ?
+            </h3>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">
-              🤑 MON RÊVE CE SERAIT
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                placeholder="55 000€ par an"
-                value={salary.desired || ""}
-                onChange={(e) =>
-                  setSalary({
-                    ...salary,
-                    desired: parseInt(e.target.value) || 0,
-                  })
-                }
-                className="w-full px-4 py-3 rounded-lg border border-input focus:border-primary focus:ring-1 focus:ring-primary"
-              />
-              <span className="absolute right-3 top-3">🎯</span>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Minimum acceptable
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    placeholder="42000"
+                    value={salary.min || ""}
+                    onChange={(e) =>
+                      setSalary({
+                        ...salary,
+                        min: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    className="w-full px-3 py-2 text-center rounded-lg border border-input focus:border-primary focus:ring-1 focus:ring-primary font-medium"
+                  />
+                  <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs text-muted-foreground">
+                    €/an
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Objectif idéal
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    placeholder="55000"
+                    value={salary.desired || ""}
+                    onChange={(e) =>
+                      setSalary({
+                        ...salary,
+                        desired: parseInt(e.target.value) || 0,
+                      })
+                    }
+                    className="w-full px-3 py-2 text-center rounded-lg border border-input focus:border-primary focus:ring-1 focus:ring-primary font-medium"
+                  />
+                  <span className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs text-muted-foreground">
+                    €/an
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -374,8 +389,8 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
           </div>
 
           <div className="text-center">
-            <p className="text-sm">⏱️ Plus que 20 secondes...</p>
-            <Progress value={60} className="mt-2" />
+            <p className="text-sm">🎯 C'est bon, on y est presque !</p>
+            <Progress value={85} className="mt-2" />
           </div>
 
           <p className="text-sm text-muted-foreground">
@@ -511,19 +526,6 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
           progress={progress}
         >
           {steps[currentStep].content}
-
-          <div className="flex justify-between mt-8">
-            {currentStep > 0 ? (
-              <Button variant="outline" onClick={prevStep}>
-                ← Retour
-              </Button>
-            ) : (
-              <div></div>
-            )}
-            <Button onClick={nextStep}>
-              {currentStep < steps.length - 1 ? "Suivant →" : "C'est parti ! →"}
-            </Button>
-          </div>
         </OnboardingCard>
       </motion.div>
     </div>
