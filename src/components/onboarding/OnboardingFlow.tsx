@@ -15,95 +15,46 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
   const [profession, setProfession] = useState("");
   const [salary, setSalary] = useState({ min: 0, desired: 0 });
   const [connectedAccounts, setConnectedAccounts] = useState<string[]>([]);
+  const [uploadedCV, setUploadedCV] = useState<File | null>(null);
 
   const steps = [
     {
-      title: "👋 Salut ! On commence ?",
+      title: "Salut ! On commence ?",
       subtitle: "🏠 Tu cherches du boulot dans quelle zone ?",
-      content: (
-        <div className="space-y-3">
-          {[
-            { emoji: "🔥", city: "Paris", jobs: 1247 },
-            { emoji: "🦁", city: "Lyon", jobs: 456 },
-            { emoji: "☀️", city: "Marseille", jobs: 334 },
-            { emoji: "🍺", city: "Lille", jobs: 189 },
-            { emoji: "🌸", city: "Toulouse", jobs: 267 },
-            { emoji: "🏰", city: "Nantes", jobs: 156 },
-            { emoji: "🍷", city: "Bordeaux", jobs: 198 },
-            { emoji: "📍", city: "Autre région", jobs: null },
-          ].map((item, index) => (
-            <button
-              key={index}
-              onClick={() => setLocation(item.city)}
-              className={`w-full text-left px-4 py-3 rounded-lg flex justify-between items-center transition-colors ${location === item.city ? "bg-primary/10 border border-primary/30" : "bg-background hover:bg-accent"}`}
-            >
-              <span>
-                <span className="mr-2">{item.emoji}</span>
-                <span className="font-medium">{item.city}</span>
-              </span>
-              {item.jobs && (
-                <span className="text-sm text-muted-foreground">
-                  ({item.jobs} jobs dispo)
-                </span>
-              )}
-            </button>
-          ))}
-          <p className="text-sm text-muted-foreground mt-4">
-            💡 Plus c'est précis, plus on trouve des perles
-          </p>
-        </div>
-      ),
-    },
-    {
-      title: "💼 Quel style de job tu veux ?",
-      subtitle: "Choisis le type de contrat qui te convient",
+      emoji: "👋",
       content: (
         <div className="space-y-4">
-          {[
-            {
-              type: "CDI",
-              description: "La sécurité avant tout",
-              stats: "987 postes à Paris",
-              badge: "🏆 Notre recommandation",
-            },
-            {
-              type: "CDI + missions longues",
-              description: "Plus de choix",
-              stats: "+234 opportunités",
-              badge: "Flexibilité garantie",
-            },
-            {
-              type: "Tout prendre",
-              description: "Mode opportuniste",
-              stats: "+123 missions courtes",
-              badge: "Maximum d'options",
-            },
-            {
-              type: "Freelance",
-              description: "Je gère ma vie",
-              stats: "89 missions actives",
-              badge: "Liberté totale",
-            },
-          ].map((item, index) => (
-            <button
-              key={index}
-              onClick={() => setJobType(item.type)}
-              className={`w-full text-left p-4 rounded-lg transition-colors ${jobType === item.type ? "bg-primary/10 border border-primary/30" : "bg-background hover:bg-accent"}`}
-            >
-              <div className="flex justify-between">
-                <span className="font-medium">{item.type}</span>
-                {item.badge && (
-                  <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
-                    {item.badge}
+          <h3 className="text-lg font-medium text-center mb-4">
+            🏠 Tu cherches du boulot dans quelle zone ?
+          </h3>
+          <div className="space-y-3">
+            {[
+              { emoji: "🔥", city: "Paris", jobs: 1247 },
+              { emoji: "🦁", city: "Lyon", jobs: 456 },
+              { emoji: "☀️", city: "Marseille", jobs: 334 },
+              { emoji: "🍺", city: "Lille", jobs: 189 },
+              { emoji: "🌸", city: "Toulouse", jobs: 267 },
+              { emoji: "🏰", city: "Nantes", jobs: 156 },
+              { emoji: "🍷", city: "Bordeaux", jobs: 198 },
+              { emoji: "📍", city: "Autre région", jobs: null },
+            ].map((item, index) => (
+              <button
+                key={index}
+                onClick={() => setLocation(item.city)}
+                className={`w-full text-left px-4 py-3 rounded-lg flex justify-between items-center transition-colors ${location === item.city ? "bg-primary/10 border border-primary/30" : "bg-background hover:bg-accent"}`}
+              >
+                <span>
+                  <span className="mr-2">{item.emoji}</span>
+                  <span className="font-medium">{item.city}</span>
+                </span>
+                {item.jobs && (
+                  <span className="text-sm text-muted-foreground">
+                    ({item.jobs} jobs dispo)
                   </span>
                 )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {item.description}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">{item.stats}</p>
-            </button>
-          ))}
+              </button>
+            ))}
+          </div>
           <p className="text-sm text-muted-foreground mt-4">
             💡 Plus c'est précis, plus on trouve des perles
           </p>
@@ -111,10 +62,78 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
       ),
     },
     {
-      title: "🎯 Alors, c'est quoi ton métier ?",
-      subtitle: "Dis-nous ce que tu recherches",
+      title: "Quel style de job tu veux ?",
+      subtitle: "Choisis le type de contrat qui te convient",
+      emoji: "💼",
       content: (
         <div className="space-y-4">
+          <h3 className="text-lg font-medium text-center mb-4">
+            Choisis le type de contrat qui te convient
+          </h3>
+          <div className="space-y-4">
+            {[
+              {
+                type: "CDI",
+                description: "La sécurité avant tout",
+                stats: "987 postes à Paris",
+                badge: "🏆 Notre recommandation",
+              },
+              {
+                type: "CDI + missions longues",
+                description: "Plus de choix",
+                stats: "+234 opportunités",
+                badge: "Flexibilité garantie",
+              },
+              {
+                type: "Tout prendre",
+                description: "Mode opportuniste",
+                stats: "+123 missions courtes",
+                badge: "Maximum d'options",
+              },
+              {
+                type: "Freelance",
+                description: "Je gère ma vie",
+                stats: "89 missions actives",
+                badge: "Liberté totale",
+              },
+            ].map((item, index) => (
+              <button
+                key={index}
+                onClick={() => setJobType(item.type)}
+                className={`w-full text-left p-4 rounded-lg transition-colors ${jobType === item.type ? "bg-primary/10 border border-primary/30" : "bg-background hover:bg-accent"}`}
+              >
+                <div className="flex justify-between">
+                  <span className="font-medium">{item.type}</span>
+                  {item.badge && (
+                    <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {item.description}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {item.stats}
+                </p>
+              </button>
+            ))}
+          </div>
+          <p className="text-sm text-muted-foreground mt-4">
+            💡 Plus c'est précis, plus on trouve des perles
+          </p>
+        </div>
+      ),
+    },
+    {
+      title: "Alors, c'est quoi ton métier ?",
+      subtitle: "Dis-nous ce que tu recherches",
+      emoji: "🎯",
+      content: (
+        <div className="space-y-4">
+          <h3 className="text-lg font-medium text-center mb-4">
+            Dis-nous ce que tu recherches
+          </h3>
           <div className="relative">
             <input
               type="text"
@@ -184,10 +203,14 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
       ),
     },
     {
-      title: "💰 Parlons salaire ! Tes attentes ?",
+      title: "Parlons salaire ! Tes attentes ?",
       subtitle: "Aide-nous à cibler les bonnes offres",
+      emoji: "💰",
       content: (
         <div className="space-y-6">
+          <h3 className="text-lg font-medium text-center mb-4">
+            Aide-nous à cibler les bonnes offres
+          </h3>
           <div className="bg-accent/30 rounded-lg p-4 space-y-4">
             <h3 className="font-medium text-center">
               💼 Quelle est ta fourchette salariale ?
@@ -271,120 +294,126 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
       ),
     },
     {
-      title: "🔗 Allez, on connecte tes comptes job ?",
-      subtitle: "Pour automatiser tes candidatures",
+      title: "Ton CV, c'est ton super-pouvoir !",
+      subtitle: "Dis-nous comment tu veux postuler",
+      emoji: "📄",
       content: (
         <div className="space-y-4">
+          <h3 className="text-lg font-medium text-center mb-4">
+            Dis-nous comment tu veux postuler
+          </h3>
           <p className="text-sm">
-            🎯 On va utiliser tes profils existants pour candidater
-            automatiquement. Malin, non ? 😉
+            🎯 On va t'aider à postuler efficacement. Tu choisis comment !
           </p>
 
-          {[
-            {
-              name: "PÔLE EMPLOI",
-              icon: "🏛️",
-              description: "On en a besoin !",
-              stats: "78% des offres passent par là",
-            },
-            {
-              name: "APEC",
-              icon: "💼",
-              description: "Pour les postes de cadre",
-              stats: "+15% d'opportunités",
-            },
-            {
-              name: "HELLOWORK",
-              icon: "👋",
-              description: "Startups et PME sympa",
-              stats: "+12% de jobs cools",
-            },
-          ].map((account, index) => {
-            const isConnected = connectedAccounts.includes(account.name);
-            return (
-              <button
-                key={index}
-                onClick={() => {
-                  if (isConnected) {
-                    setConnectedAccounts(
-                      connectedAccounts.filter((a) => a !== account.name),
-                    );
-                  } else {
-                    setConnectedAccounts([...connectedAccounts, account.name]);
-                  }
-                }}
-                className={`w-full text-left p-4 rounded-lg transition-colors ${isConnected ? "bg-primary/10 border border-primary/30" : "bg-background hover:bg-accent"}`}
-              >
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">
-                    {account.icon} CONNECTER {account.name}
-                  </span>
-                  {isConnected && (
-                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                      Connecté ✓
-                    </span>
-                  )}
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  {account.description} • {account.stats}
-                </div>
-              </button>
-            );
-          })}
+          <div className="space-y-3">
+            <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
+              <h3 className="font-medium flex items-center">
+                📄 Upload ton CV
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                On l'utilisera pour postuler automatiquement
+              </p>
+              <div className="mt-3">
+                <input
+                  type="file"
+                  id="cv-upload"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setUploadedCV(file);
+                    }
+                  }}
+                  className="hidden"
+                />
+                <label
+                  htmlFor="cv-upload"
+                  className="inline-block px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium cursor-pointer hover:bg-primary/90 transition-colors"
+                >
+                  {uploadedCV ? `✅ ${uploadedCV.name}` : "Choisir un fichier"}
+                </label>
+                {uploadedCV && (
+                  <div className="mt-2 flex items-center text-sm text-green-600">
+                    <span className="mr-1">✅</span>
+                    <span>CV uploadé avec succès !</span>
+                    <button
+                      onClick={() => setUploadedCV(null)}
+                      className="ml-2 text-red-500 hover:text-red-700"
+                    >
+                      ❌
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-          <div className="bg-accent/50 rounded-lg p-4 mt-4">
-            <h3 className="font-medium">🔒 SÉCURITÉ 100% GARANTIE</h3>
+          <div className="bg-accent/30 rounded-lg p-4">
+            <h3 className="font-medium">🚀 COMMENT ÇA MARCHE</h3>
             <ul className="text-sm space-y-1 mt-2">
-              <li>• Connexion ultra-sécurisée • On stocke rien</li>
-              <li>• Tu peux tout déconnecter quand tu veux</li>
+              <li>• On trouve les jobs qui te correspondent</li>
+              <li>• Tu valides ceux qui t'intéressent</li>
+              <li>• On postule avec ton CV automatiquement</li>
+              <li>• Tu reçois les réponses directement</li>
             </ul>
           </div>
 
           <p className="text-sm text-muted-foreground">
-            💡 Tes CVs existants vont bosser pour toi !
+            💡 Simple, efficace, et tu gardes le contrôle !
           </p>
         </div>
       ),
     },
     {
-      title: "🤖 Notre IA analyse tes profils...",
-      subtitle: "On bosse pour toi !",
+      title: "Notre IA prépare ton profil...",
+      subtitle: "On analyse tes infos pour te trouver les meilleurs jobs !",
+      emoji: "🤖",
       content: (
         <div className="space-y-6">
+          <h3 className="text-lg font-medium text-center mb-4">
+            On analyse tes infos pour te trouver les meilleurs jobs !
+          </h3>
           <div className="space-y-2">
-            {connectedAccounts.map((account, index) => (
-              <div key={index} className="flex items-center">
-                <span className="text-green-600 mr-2">✅</span>
-                <span>
-                  {account} connecté -{" "}
-                  {index === 0 ? "Nickel !" : index === 1 ? "Top !" : "Super !"}
-                </span>
-              </div>
-            ))}
+            <div className="flex items-center">
+              <span className="text-green-600 mr-2">✅</span>
+              <span>Localisation: {location || "Paris"} - Parfait !</span>
+            </div>
+            <div className="flex items-center">
+              <span className="text-green-600 mr-2">✅</span>
+              <span>Métier: {profession || "Dev Frontend"} - Nickel !</span>
+            </div>
+            <div className="flex items-center">
+              <span className="text-green-600 mr-2">✅</span>
+              <span>
+                Salaire: {salary.min}-{salary.desired}K€ - Top !
+              </span>
+            </div>
             <div className="flex items-center">
               <span className="text-blue-600 mr-2">🔄</span>
-              <span>Analyse de tes compétences en cours...</span>
+              <span>Recherche des jobs parfaits en cours...</span>
             </div>
           </div>
 
           <div className="bg-accent/50 rounded-lg p-4 space-y-3">
-            <h3 className="font-medium">📋 CE QU'ON A RÉCUPÉRÉ</h3>
+            <h3 className="font-medium">📋 TON PROFIL</h3>
             <ul className="text-sm space-y-1">
-              <li>• Ton super CV: CV_{profession || "Frontend"}_2024.pdf ✅</li>
-              <li>• Ton profil APEC au top ✅</li>
-              <li>• Tes 23 derniers mois de candidatures ✅</li>
+              <li>• Métier: {profession || "Dev Frontend"} ✅</li>
+              <li>• Zone: {location || "Paris"} ✅</li>
+              <li>• Type: {jobType || "CDI"} ✅</li>
+              <li>
+                • Salaire: {salary.min || 40}-{salary.desired || 55}K€ ✅
+              </li>
             </ul>
           </div>
 
           <div className="bg-accent/50 rounded-lg p-4 space-y-3">
             <h3 className="font-medium">🧠 NOTRE IA FAIT SON TRAVAIL</h3>
             <ul className="text-sm space-y-1">
-              <li>• Détection de tes super-pouvoirs techniques</li>
-              <li>
-                • Vérification de ta fourchette {salary.min}-{salary.desired}K€
-              </li>
-              <li>• Tes zones préférées</li>
-              <li>• Types de boîtes qui te correspondraient</li>
+              <li>• Analyse du marché pour ton profil</li>
+              <li>• Recherche des entreprises qui recrutent</li>
+              <li>• Vérification des salaires du marché</li>
+              <li>• Préparation de tes candidatures</li>
             </ul>
           </div>
 
@@ -400,10 +429,14 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
       ),
     },
     {
-      title: "🎉 Dernière étape ! Ton profil est au top",
+      title: "Dernière étape ! Ton profil est au top",
       subtitle: "Crée ton compte pour commencer",
+      emoji: "🎉",
       content: (
         <div className="space-y-6">
+          <h3 className="text-lg font-medium text-center mb-4">
+            Crée ton compte pour commencer
+          </h3>
           <div className="bg-green-50 text-green-800 rounded-lg p-4">
             <p className="font-medium">
               ✅ 76 jobs parfaits pour toi identifiés !
@@ -510,6 +543,23 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
 
   const progress = ((currentStep + 1) / steps.length) * 100;
 
+  const canProceed = () => {
+    switch (currentStep) {
+      case 0:
+        return location !== "";
+      case 1:
+        return jobType !== "";
+      case 2:
+        return profession !== "";
+      case 3:
+        return salary.min > 0 && salary.desired > 0;
+      case 4:
+        return uploadedCV !== null;
+      default:
+        return true;
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <motion.div
@@ -520,10 +570,15 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
       >
         <OnboardingCard
           title={steps[currentStep].title}
-          subtitle={steps[currentStep].subtitle}
+          emoji={steps[currentStep].emoji}
           currentStep={currentStep + 1}
           totalSteps={steps.length}
-          progress={progress}
+          onNext={canProceed() ? nextStep : undefined}
+          onBack={currentStep > 0 ? prevStep : undefined}
+          showBackButton={currentStep > 0}
+          nextButtonText={
+            currentStep === steps.length - 1 ? "Terminer" : "Suivant →"
+          }
         >
           {steps[currentStep].content}
         </OnboardingCard>
