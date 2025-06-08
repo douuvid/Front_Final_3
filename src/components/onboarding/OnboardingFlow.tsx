@@ -27,31 +27,24 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
           <h3 className="text-lg font-medium text-center mb-4">
             🏠 Tu cherches du boulot dans quelle zone ?
           </h3>
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             {[
-              { emoji: "🔥", city: "Paris", jobs: 1247 },
-              { emoji: "🦁", city: "Lyon", jobs: 456 },
-              { emoji: "☀️", city: "Marseille", jobs: 334 },
-              { emoji: "🍺", city: "Lille", jobs: 189 },
-              { emoji: "🌸", city: "Toulouse", jobs: 267 },
-              { emoji: "🏰", city: "Nantes", jobs: 156 },
-              { emoji: "🍷", city: "Bordeaux", jobs: 198 },
-              { emoji: "📍", city: "Autre région", jobs: null },
+              { emoji: "🔥", city: "Paris" },
+              { emoji: "🦁", city: "Lyon" },
+              { emoji: "☀️", city: "Marseille" },
+              { emoji: "🍺", city: "Lille" },
+              { emoji: "🌸", city: "Toulouse" },
+              { emoji: "🏰", city: "Nantes" },
+              { emoji: "🍷", city: "Bordeaux" },
+              { emoji: "📍", city: "Autre région" },
             ].map((item, index) => (
               <button
                 key={index}
                 onClick={() => setLocation(item.city)}
-                className={`w-full text-left px-4 py-3 rounded-lg flex justify-between items-center transition-colors ${location === item.city ? "bg-primary/10 border border-primary/30" : "bg-background hover:bg-accent"}`}
+                className={`text-center px-4 py-4 rounded-lg transition-colors ${location === item.city ? "bg-primary/10 border border-primary/30" : "bg-background hover:bg-accent border border-transparent"}`}
               >
-                <span>
-                  <span className="mr-2">{item.emoji}</span>
-                  <span className="font-medium">{item.city}</span>
-                </span>
-                {item.jobs && (
-                  <span className="text-sm text-muted-foreground">
-                    ({item.jobs} jobs dispo)
-                  </span>
-                )}
+                <div className="text-2xl mb-2">{item.emoji}</div>
+                <div className="font-medium text-sm">{item.city}</div>
               </button>
             ))}
           </div>
