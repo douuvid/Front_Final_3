@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -13,13 +13,37 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   Clock,
   Settings,
   BarChart2,
   PauseCircle,
   ChevronRight,
+  CheckCircle,
+  Target,
+  TrendingUp,
+  Zap,
+  Coffee,
+  Star,
 } from "lucide-react";
 import JobMatchCard from "./JobMatchCard";
+
+interface SentApplication {
+  id: string;
+  company: string;
+  position: string;
+  description: string;
+  sentDate: string;
+  platform: string;
+  status: "sent" | "viewed" | "replied" | "rejected";
+}
 
 interface DashboardProps {
   userName?: string;
@@ -31,6 +55,7 @@ interface DashboardProps {
   matchingRate?: number;
   averageSalary?: string;
   nextSearchTime?: string;
+  sentApplications?: SentApplication[];
   featuredJobs?: Array<{
     id: string;
     company: string;
@@ -39,6 +64,18 @@ interface DashboardProps {
     matchPercentage: number;
     postedTime: string;
   }>;
+  userLevel?: "beginner" | "active" | "expert";
+  timeOfDay?: "morning" | "afternoon" | "evening";
+  isFirstLogin?: boolean;
+}
+
+type DashboardVariant = "welcome" | "active" | "completed" | "paused";
+
+interface DashboardState {
+  variant: DashboardVariant;
+  primaryAction: string;
+  mood: string;
+  focusArea: "quota" | "matches" | "stats" | "settings";
 }
 
 const Dashboard = ({
@@ -51,6 +88,51 @@ const Dashboard = ({
   matchingRate = 89,
   averageSalary = "48K€",
   nextSearchTime = "23 min",
+  userLevel = "active",
+  timeOfDay = "morning",
+  isFirstLogin = false,
+  sentApplications = [
+    {
+      id: "1",
+      company: "Google France",
+      position: "Senior React Developer",
+      description:
+        "Nous recherchons un développeur React senior pour rejoindre notre équipe parisienne. Vous travaillerez sur des projets innovants avec les dernières technologies.",
+      sentDate: "2024-01-15",
+      platform: "LinkedIn",
+      status: "viewed",
+    },
+    {
+      id: "2",
+      company: "Spotify",
+      position: "Frontend Lead",
+      description:
+        "Poste de lead frontend pour diriger une équipe de 5 développeurs. Expertise en React, TypeScript et architecture frontend requise.",
+      sentDate: "2024-01-14",
+      platform: "Indeed",
+      status: "sent",
+    },
+    {
+      id: "3",
+      company: "Airbnb",
+      position: "Senior React Developer",
+      description:
+        "Développeur senior pour travailler sur la plateforme de réservation. Stack moderne avec React, Next.js et GraphQL.",
+      sentDate: "2024-01-13",
+      platform: "Welcome to the Jungle",
+      status: "replied",
+    },
+    {
+      id: "4",
+      company: "BlaBlaCar",
+      position: "Frontend Engineer",
+      description:
+        "Ingénieur frontend pour développer les nouvelles fonctionnalités de covoiturage. Environnement agile et international.",
+      sentDate: "2024-01-12",
+      platform: "LinkedIn",
+      status: "sent",
+    },
+  ],
   featuredJobs = [
     {
       id: "1",
@@ -86,88 +168,273 @@ const Dashboard = ({
     },
   ],
 }: DashboardProps) => {
+  const [dashboardState, setDashboardState] = useState<DashboardState>({
+    variant: "active",
+    primaryAction: "Voir les matches",
+    mood: "🌅",
+    focusArea: "quota",
+  });
+
   const progressPercentage = (quotaUsed / quotaTotal) * 100;
+  const isQuotaComplete = quotaUsed >= quotaTotal;
+  const isHighPerformer = matchingRate >= 85;
+  const hasNewMatches = newJobsCount > 0;
+
+  // Dynamic state calculation
+  useEffect(() => {
+    const calculateDashboardState = (): DashboardState => {
+      // Determine variant based on user progress and context
+      let variant: DashboardVariant = "active";
+      let primaryAction = "Voir les matches";
+      let mood = "🌅";
+      let focusArea: "quota" | "matches" | "stats" | "settings" = "quota";
+
+      if (isFirstLogin) {
+        variant = "welcome";
+        primaryAction = "Commencer ma recherche";
+        mood = "👋";
+        focusArea = "quota";
+      } else if (isQuotaComplete) {
+        variant = "completed";
+        primaryAction = "Voir mes candidatures";
+        mood = "🎯";
+        focusArea = "stats";
+      } else if (hasNewMatches && isHighPerformer) {
+        variant = "active";
+        primaryAction = "Voir les pépites";
+        mood = "🔥";
+        focusArea = "matches";
+      } else if (quotaUsed === 0) {
+        variant = "paused";
+        primaryAction = "Reprendre la recherche";
+        mood = "☕";
+        focusArea = "settings";
+      }
+
+      // Adjust mood based on time of day
+      if (timeOfDay === "morning") mood = variant === "completed" ? "🎯" : "🌅";
+      else if (timeOfDay === "afternoon")
+        mood = variant === "active" ? "⚡" : "☀️";
+      else mood = variant === "completed" ? "🌟" : "🌙";
+
+      return { variant, primaryAction, mood, focusArea };
+    };
+
+    setDashboardState(calculateDashboardState());
+  }, [
+    quotaUsed,
+    quotaTotal,
+    isFirstLogin,
+    newJobsCount,
+    matchingRate,
+    timeOfDay,
+  ]);
+
+  // Dynamic content based on state
+  const getGreeting = () => {
+    const greetings = {
+      welcome: `${dashboardState.mood} Bienvenue ${userName} ! Prêt à décrocher ton job de rêve ?`,
+      active: `${dashboardState.mood} Salut ${userName} ! ${timeOfDay === "morning" ? "Ça a bossé cette nuit !" : "On continue sur ta lancée !"}`,
+      completed: `${dashboardState.mood} Bravo ${userName} ! Objectif du jour atteint !`,
+      paused: `${dashboardState.mood} Re ${userName} ! Prêt à reprendre la chasse ?`,
+    };
+    return greetings[dashboardState.variant];
+  };
+
+  const getSubtitle = () => {
+    const subtitles = {
+      welcome: "Configurons ensemble ta stratégie de recherche",
+      active: "Voici ton tableau de bord pour aujourd'hui",
+      completed: "Tu peux te détendre, on s'occupe du reste",
+      paused: "Reprends là où tu t'es arrêté",
+    };
+    return subtitles[dashboardState.variant];
+  };
+
+  const getPriorityCards = () => {
+    switch (dashboardState.focusArea) {
+      case "matches":
+        return ["matches", "quota", "stats"];
+      case "stats":
+        return ["stats", "matches", "quota"];
+      case "settings":
+        return ["quota", "settings", "matches"];
+      default:
+        return ["quota", "matches", "stats"];
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gray-50 p-4">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center md:text-left">
-          <h1 className="text-2xl md:text-3xl font-bold mb-1">
-            🌅 Salut {userName} ! Ça a bossé cette nuit !
-          </h1>
-          <p className="text-gray-500">
-            Voici ton tableau de bord pour aujourd'hui
-          </p>
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-bold text-gray-900">{getGreeting()}</h1>
+          <p className="text-gray-600">{getSubtitle()}</p>
         </div>
 
-        {/* Quota Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>🎯 TON SCORE DU JOUR</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
+        {/* Main Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Quota Card */}
+          <Card className="bg-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Target className="h-5 w-5 text-blue-600" />
+                Quota du jour
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Candidatures envoyées</span>
+                  <span className="font-medium">
+                    {quotaUsed}/{quotaTotal}
+                  </span>
+                </div>
+                <Progress value={progressPercentage} className="h-2" />
+              </div>
+              <div className="text-xs text-gray-500">
+                Renouvellement: {quotaResetTime}
+              </div>
+              {isQuotaComplete && (
+                <Badge variant="secondary" className="w-full justify-center">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Objectif atteint !
+                </Badge>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* New Matches Card */}
+          <Card className="bg-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Zap className="h-5 w-5 text-yellow-600" />
+                Nouveaux matches
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-gray-900 mb-2">
+                {newJobsCount}
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                Offres qui correspondent à ton profil
+              </p>
+              <Button className="w-full" size="sm">
+                {dashboardState.primaryAction}
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Performance Card */}
+          <Card className="bg-white">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+                Performance
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="font-medium">
-                  📨 CANDIDATURES: {quotaUsed}/{quotaTotal}
-                </span>
-                <span className="text-sm text-gray-500">
-                  {Math.round(progressPercentage)}%
+                <span className="text-sm text-gray-600">Taux de match</span>
+                <span className="font-bold text-green-600">
+                  {matchingRate}%
                 </span>
               </div>
-              <Progress value={progressPercentage} className="h-3" />
-              <ul className="text-sm text-gray-600 space-y-1 mt-2">
-                <li>
-                  •{" "}
-                  {quotaUsed === quotaTotal
-                    ? "PERFECT ! Objectif éclaté 🎯"
-                    : `Super début ! ${quotaTotal - quotaUsed} slots pour finir en beauté`}
-                </li>
-                <li>• Reset {quotaResetTime}</li>
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Salaire moyen</span>
+                <span className="font-bold">{averageSalary}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">
+                  Prochaine recherche
+                </span>
+                <span className="font-medium text-blue-600">
+                  {nextSearchTime}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Stats Card */}
-        <Card>
+        {/* Sent Applications Section */}
+        <Card className="bg-white">
           <CardHeader>
-            <CardTitle>🎉 PENDANT QUE TU DORMAIS (22h → 7h)</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart2 className="h-5 w-5 text-purple-600" />
+              Candidatures envoyées ({sentApplications.length})
+            </CardTitle>
+            <CardDescription>
+              Suivi de tes candidatures récentes
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-2 text-gray-700">
-              <li className="flex items-center">
-                • 🆕 {newJobsCount} nouveaux jobs Frontend repérés
-              </li>
-              <li className="flex items-center">
-                • ✅ {candidaturesSent} candidatures envoyées (que du bon
-                match!)
-              </li>
-              <li className="flex items-center">
-                • 💰 Tous dans ta fourchette 42-55K€
-              </li>
-            </ul>
-            <div className="flex items-center mt-4 text-sm text-gray-500">
-              <Clock className="h-4 w-4 mr-1" />
-              <span>Prochaine recherche dans {nextSearchTime}</span>
-            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Poste</TableHead>
+                  <TableHead>Entreprise</TableHead>
+                  <TableHead>Date d'envoi</TableHead>
+                  <TableHead>Plateforme</TableHead>
+                  <TableHead>Statut</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sentApplications.map((application) => (
+                  <TableRow key={application.id}>
+                    <TableCell className="font-medium">
+                      {application.position}
+                    </TableCell>
+                    <TableCell>{application.company}</TableCell>
+                    <TableCell>
+                      {new Date(application.sentDate).toLocaleDateString(
+                        "fr-FR",
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        },
+                      )}
+                    </TableCell>
+                    <TableCell>{application.platform}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          application.status === "replied"
+                            ? "default"
+                            : application.status === "viewed"
+                              ? "secondary"
+                              : "outline"
+                        }
+                      >
+                        {application.status === "sent" && "Envoyée"}
+                        {application.status === "viewed" && "Vue"}
+                        {application.status === "replied" && "Réponse"}
+                        {application.status === "rejected" && "Refusée"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
 
         {/* Featured Jobs */}
-        <Card>
+        <Card className="bg-white">
           <CardHeader>
-            <CardTitle>🔥 PÉPITES DU JOUR</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-yellow-600" />
+              Offres recommandées
+            </CardTitle>
             <CardDescription>
-              <Badge variant="secondary" className="mr-2">
-                ⭐ {featuredJobs.length} jobs "MATCH PARFAIT" repérés
-              </Badge>
+              Les meilleures opportunités pour toi
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {featuredJobs.slice(0, 2).map((job) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {featuredJobs.map((job) => (
                 <JobMatchCard
                   key={job.id}
                   company={job.company}
@@ -179,147 +446,7 @@ const Dashboard = ({
               ))}
             </div>
           </CardContent>
-          <CardFooter className="flex justify-center border-t pt-4">
-            <Button variant="outline" className="w-full md:w-auto">
-              Voir toutes les pépites
-            </Button>
-          </CardFooter>
         </Card>
-
-        {/* Daily Stats Summary */}
-        <Card>
-          <CardHeader>
-            <CardTitle>📈 MATINÉE DE FEU !</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Candidatures</span>
-                  <span className="font-medium">
-                    +{candidaturesSent} au total
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Taux de matching</span>
-                  <span className="font-medium">
-                    {matchingRate}% (tu es en feu!)
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Offres traitées</span>
-                  <span className="font-medium">100%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Salaire moyen visé</span>
-                  <span className="font-medium">
-                    {averageSalary} (pile dans tes cordes)
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 text-sm text-gray-500 flex items-center">
-              <span className="mr-1">💡</span>
-              <span>Objectif complet estimé: vers 15h30</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button className="flex items-center gap-2">
-            <BarChart2 className="h-4 w-4" />
-            Mon activité
-          </Button>
-          <Button
-            variant="outline"
-            className="flex items-center gap-2"
-            onClick={() => (window.location.href = "/stats")}
-          >
-            <BarChart2 className="h-4 w-4" />
-            Mes stats
-          </Button>
-          <Button variant="secondary" className="flex items-center gap-2">
-            <PauseCircle className="h-4 w-4" />
-            Faire une pause
-          </Button>
-          <Button variant="outline" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Réglages
-          </Button>
-        </div>
-
-        {/* Tabs for Additional Content */}
-        <Tabs defaultValue="jobs" className="mt-8">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="jobs">Mes jobs</TabsTrigger>
-            <TabsTrigger value="applications">Candidatures</TabsTrigger>
-            <TabsTrigger value="settings">Préférences</TabsTrigger>
-          </TabsList>
-          <TabsContent value="jobs" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Tous mes jobs</CardTitle>
-                <CardDescription>
-                  Découvre tous les jobs qui correspondent à ton profil
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {featuredJobs.map((job) => (
-                    <JobMatchCard
-                      key={job.id}
-                      company={job.company}
-                      position={job.position}
-                      salary={job.salary}
-                      matchPercentage={job.matchPercentage}
-                      postedTime={job.postedTime}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button
-                  variant="outline"
-                  className="w-full md:w-auto flex items-center gap-1"
-                >
-                  Voir plus de jobs
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-          <TabsContent value="applications" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Mes candidatures</CardTitle>
-                <CardDescription>
-                  Suivi de tes candidatures envoyées
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-center py-8 text-gray-500">
-                  Tu as envoyé {candidaturesSent} candidatures aujourd'hui
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="settings" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Mes préférences</CardTitle>
-                <CardDescription>Personnalise ton expérience</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-center py-8 text-gray-500">
-                  Ajuste tes critères de recherche et notifications
-                </p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
       </div>
     </div>
   );
