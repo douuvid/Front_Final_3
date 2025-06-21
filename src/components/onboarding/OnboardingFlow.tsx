@@ -15,6 +15,11 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
   const [profession, setProfession] = useState("");
   const [salary, setSalary] = useState({ min: 0, desired: 0 });
   const [connectedAccounts, setConnectedAccounts] = useState<string[]>([]);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptAlerts, setAcceptAlerts] = useState(true);
 
   const steps = [
     {
@@ -372,15 +377,6 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
               <li>• Types de boîtes qui te correspondraient</li>
             </ul>
           </div>
-
-          <div className="text-center">
-            <p className="text-sm">⏱️ Plus que 20 secondes...</p>
-            <Progress value={60} className="mt-2" />
-          </div>
-
-          <p className="text-sm text-muted-foreground">
-            💡 On optimise tout pour que tu cartonnes !
-          </p>
         </div>
       ),
     },
@@ -405,6 +401,8 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
               <input
                 type="email"
                 placeholder="john.doe@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-2xl border border-gray-200/60 bg-white/90 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200/50 transition-all duration-300 shadow-sm focus:shadow-lg"
               />
             </div>
@@ -416,6 +414,8 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
               <input
                 type="password"
                 placeholder="********"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-2xl border border-gray-200/60 bg-white/90 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200/50 transition-all duration-300 shadow-sm focus:shadow-lg"
               />
             </div>
@@ -427,27 +427,50 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
               <input
                 type="tel"
                 placeholder="06 12 34 56 78"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="w-full px-4 py-3 rounded-2xl border border-gray-200/60 bg-white/90 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200/50 transition-all duration-300 shadow-sm focus:shadow-lg"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center">
-              <input type="checkbox" id="terms" className="mr-2" />
-              <label htmlFor="terms" className="text-sm">
-                ✅ OK pour les conditions d'utilisation
+          <div className="space-y-3">
+            <div className="flex items-start">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={acceptTerms}
+                onChange={(e) => setAcceptTerms(e.target.checked)}
+                className="mr-3 mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              />
+              <label htmlFor="terms" className="text-sm leading-relaxed">
+                ✅ J'accepte les{" "}
+                <a
+                  href="#"
+                  className="text-indigo-600 hover:underline font-medium"
+                >
+                  conditions générales d'utilisation
+                </a>{" "}
+                et la{" "}
+                <a
+                  href="#"
+                  className="text-indigo-600 hover:underline font-medium"
+                >
+                  politique de confidentialité (RGPD)
+                </a>
               </label>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-start">
               <input
                 type="checkbox"
                 id="alerts"
-                className="mr-2"
-                defaultChecked
+                checked={acceptAlerts}
+                onChange={(e) => setAcceptAlerts(e.target.checked)}
+                className="mr-3 mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
               />
-              <label htmlFor="alerts" className="text-sm">
-                ✅ Alerte email pour les nouveaux jobs
+              <label htmlFor="alerts" className="text-sm leading-relaxed">
+                📧 Je souhaite recevoir des alertes email pour les nouveaux jobs
+                correspondant à mon profil
               </label>
             </div>
           </div>
@@ -462,8 +485,29 @@ const OnboardingFlow = ({ onComplete = () => {} }: OnboardingFlowProps) => {
 
           <div className="text-center">
             <Button
-              onClick={onComplete}
-              className="w-full py-6 text-base font-semibold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white rounded-2xl shadow-[0_8px_32px_-4px_rgba(99,102,241,0.4)] hover:shadow-[0_12px_40px_-4px_rgba(99,102,241,0.5)] transition-all duration-300 border-0 transform hover:scale-[1.02]"
+              onClick={() => {
+                if (email && password && acceptTerms) {
+                  console.log("Données utilisateur:", {
+                    email,
+                    password,
+                    phone,
+                    location,
+                    jobType,
+                    profession,
+                    salary,
+                    connectedAccounts,
+                    acceptTerms,
+                    acceptAlerts,
+                  });
+                  onComplete();
+                } else {
+                  alert(
+                    "Veuillez remplir tous les champs obligatoires et accepter les conditions.",
+                  );
+                }
+              }}
+              disabled={!email || !password || !acceptTerms}
+              className="w-full py-6 text-base font-semibold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white rounded-2xl shadow-[0_8px_32px_-4px_rgba(99,102,241,0.4)] hover:shadow-[0_12px_40px_-4px_rgba(99,102,241,0.5)] transition-all duration-300 border-0 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               🚀 CRÉER MON COMPTE & C'EST PARTI !
             </Button>
